@@ -1,0 +1,45 @@
+﻿@page "/"
+@using System.IO
+@using System;
+@using System.Threading;
+
+<SfUploader ID="UploadFiles" AutoUpload="false">
+    <UploaderEvents ValueChange="OnChange" />
+</SfUploader>
+
+@code {
+    public class FakeFileStream : FileStream
+    {
+        private bool RaiseExceptionOnClose = false;
+        public FakeFileStream(string path, FileMode mode, FileAccess access, bool raiseExceptionOnClose) : base(path, mode, access)
+        {
+            RaiseExceptionOnClose = raiseExceptionOnClose;
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            // delay storing data (for example for large files)
+            Thread.Sleep(5 * 1000);
+            Console.WriteLine($"Fake writing ...");
+        }
+
+        public override void Close()
+        {
+            // store file operation can fail
+            if (RaiseExceptionOnClose) throw new Exception("Error uploading file");
+        }
+    }
+
+    public void OnChange(UploadChangeEventArgs args)
+    {
+        foreach (var file in args.Files)
+        {
+            var path = @"path" + file.FileInfo.Name;
+            FakeFileStream filestream = new FakeFileStream(path, FileMode.Create, FileAccess.Write, raiseExceptionOnClose: true);
+            file.Stream.WriteTo(filestream);
+            filestream.Close();
+            file.Stream.Close();
+        }
+    }
+}
+
