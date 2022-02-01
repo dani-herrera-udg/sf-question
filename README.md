@@ -14,4 +14,4 @@ To ilustrate it, in this code, I wrote a FakeStremWriter that delays write opera
 
 I would like to know what is the code pattern to work with SF serverside upload control and deal with these issues (delay to store file on backed, fail on store file on backend)
 
-![ScrteenShot](./ScrteenShot/E.gif)
+![ScrteenShot](./ScreenShot/E.gif)
